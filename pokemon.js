@@ -94,20 +94,35 @@ var typeData = {
 }
 
 var detectCycles = type => {
-  var strongs = JSON.stringify(detectCycleOnType('S', [], 'GRASS', 0), null, 1)
-  // var weaks = detectCycleOnType('W', [], 'GRASS')
+  var strongs = detectCycleOnType('S', [], type, 0)
+  // var strongs = JSON.stringify(detectCycleOnType('S', [], type, 0), null, 1)
+  var weaks = detectCycleOnType('W', [], type , 0)
   // var immune = detectCycleOnType('I', [], type)
 
-  // console.log('========== FOR TYPE :', type)
-  // console.log('strongs: ', strongs)
-  // console.log('weak: ', weaks)
+  strongs = flatten([strongs]).getCycles(type).arraySort()
+  weaks = flatten([weaks]).getCycles(type).arraySort()
+
+
+  // if (strongs.length > 0 && weaks.length > 0) {
+    console.log('========== FOR TYPE :', type)
+    console.log('cycle: ' ,compareArrays(strongs, weaks))
+    // console.log('strongs: ', strongs)
+    // console.log('weak: ', weaks)
+  // }
 }
 
 function detectCycleOnType(dir, seen, type, depth) {
+  if (depth > 3) {
+    if (seen[0] === seen[seen.length + 1]) {
+      return seen
+    } else {
+      return
+    }
+  }
 
   // console.log('TYPE: ', type)
   var children = typeData[type][dir]
-  console.log(`depth: ${depth} :: children ${children}`)
+  // console.log(`depth: ${depth} :: children ${children}`)
   // console.log('CHILDREN: ', children)
 
   if (children.length === 0) {
@@ -140,12 +155,89 @@ function detectCycleOnType(dir, seen, type, depth) {
   })
 
   return result
-  
+
   // return detectCycleOnType(dir, seen, type)
 }
 
-detectCycles('GRASS')
-// Object.keys(typeData).forEach(detectCycles)
+
+function flatten (arr) {
+  return arr.reduce(function (flat, toFlatten) {
+    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+  }, []);
+}
+
+Array.prototype.arraySort = function () {
+  let result = []
+
+  for (var i = 0; i < this.length; i++) {
+    result.push(this[i].sort())
+  }
+
+  return result
+}
+
+Array.prototype.getCycles = function (type) {
+  let result1 = []
+  let temp = []
+
+  for (var i = 0; i < this.length; i++) {
+    if (!this[i]) {
+      temp = []
+    } else if (temp.length === 0 || temp[0] !== this[i]) {
+      temp.push(this[i])
+    } else if (this[i] === temp[0]) {
+      result1.push(temp)
+      temp = []
+    }
+  }
+// console.log(result1);
+  let result = []
+  for (var i = 0; i < result1.length; i++) {
+    if (result1[i][0]) {
+      result.push(result1[i].getUnique())
+    }
+  }
+
+  return result
+}
+
+Array.prototype.getUnique = function(){
+   var u = {}, a = [];
+   for(var i = 0, l = this.length; i < l; ++i){
+      if(u.hasOwnProperty(this[i])) {
+         continue;
+      }
+      a.push(this[i]);
+      u[this[i]] = 1;
+   }
+   return a;
+}
+
+function compareArrays (arrays1, arrays2) {
+  let result = []
+  for (var i = 0; i < arrays1.length; i++) {
+    for (var j = 0; j < arrays2.length; j++) {
+      if (arrays2[j].compare(arrays1[i])) {
+        result.push(arrays1[i])
+      }
+    }
+  }
+  return result
+}
+
+Array.prototype.compare = function(testArr) {
+    if (this.length != testArr.length) return false;
+    for (var i = 0; i < testArr.length; i++) {
+        if (this[i].compare) {
+            if (!this[i].compare(testArr[i])) return false;
+        }
+        if (this[i] !== testArr[i]) return false;
+    }
+    return true;
+}
+
+// detectCycles('WATER')
+Object.keys(typeData).forEach(detectCycles)
 
 // [
 //   {

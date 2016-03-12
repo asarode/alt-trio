@@ -95,7 +95,6 @@ var typeData = {
 
 var detectCycles = type => {
   var strongs = detectCycleOnType('S', [], type, 0)
-  // var strongs = JSON.stringify(detectCycleOnType('S', [], type, 0), null, 1)
   var weaks = detectCycleOnType('W', [], type , 0)
   // var immune = detectCycleOnType('I', [], type)
 
@@ -103,60 +102,39 @@ var detectCycles = type => {
   weaks = flatten([weaks]).getCycles(type).arraySort()
 
 
-  // if (strongs.length > 0 && weaks.length > 0) {
-    console.log('========== FOR TYPE :', type)
-    console.log('cycle: ' ,compareArrays(strongs, weaks))
-    // console.log('strongs: ', strongs)
-    // console.log('weak: ', weaks)
-  // }
+  console.log('========== FOR TYPE :', type)
+  console.log('cycle: ' ,compareArrays(strongs, weaks))
+  // console.log('strongs: ', strongs)
+  // console.log('weak: ', weaks)
 }
 
 function detectCycleOnType(dir, seen, type, depth) {
   if (depth > 3) {
-    if (seen[0] === seen[seen.length + 1]) {
-      return seen
-    } else {
-      return
-    }
+    return
   }
 
-  // console.log('TYPE: ', type)
   var children = typeData[type][dir]
-  // console.log(`depth: ${depth} :: children ${children}`)
-  // console.log('CHILDREN: ', children)
 
   if (children.length === 0) {
-    // console.log('false? wtf are you doin here?')
     return false
   }
 
-  // console.log('seen ', seen)
-  // console.log('type', type)
-  // console.log('is in seen?', seen.indexOf(type) > -1)
   if (seen.indexOf(type) > -1) {
     seen.push(type)
-    // console.log(seen)
     return seen
   }
-
-  // return children.map(childType => {
-  //   seen.push(type)
-  //   return detectCycleOnType(dir, seen, childType)
-  // })
 
   var result = []
   children.forEach(function(childType) {
     var seenCopy = [...seen]
-    seenCopy.push(type)
     var _depth = depth + 1
+    seenCopy.push(type)
+
     var value = detectCycleOnType(dir, seenCopy, childType, _depth)
-    // console.log(value)
     result.push(value)
   })
 
   return result
-
-  // return detectCycleOnType(dir, seen, type)
 }
 
 
@@ -190,15 +168,15 @@ Array.prototype.getCycles = function (type) {
       temp = []
     }
   }
-// console.log(result1);
-  let result = []
+
+  let output = []
   for (var i = 0; i < result1.length; i++) {
     if (result1[i][0]) {
-      result.push(result1[i].getUnique())
+      output.push(result1[i].getUnique())
     }
   }
 
-  return result
+  return output
 }
 
 Array.prototype.getUnique = function(){
@@ -238,18 +216,3 @@ Array.prototype.compare = function(testArr) {
 
 // detectCycles('WATER')
 Object.keys(typeData).forEach(detectCycles)
-
-// [
-//   {
-//     S: [
-//       ['fire', 'water', 'grass'],
-//       ['fire', 'water', 'grass']
-//     ],
-//     W: [
-//       [[[[[[[[['grass', 'water', 'fire']]]]]]]]]
-//       ['fire', 'water', 'grass'],
-//       ['fidsfe', 'wadfssr', 'spdfs']
-//     ],
-//   }
-//   ...
-// ]
